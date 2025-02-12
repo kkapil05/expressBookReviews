@@ -12,7 +12,21 @@ app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUni
 
 app.use("/customer/auth/*", function auth(req,res,next){
 //Write the authenication mechanism here
-});
+    let token = req.header('Authorization');
+    if(!token)
+    {
+        return res.status(401).json({msg: 'Access denied no token provided'});
+    }
+    try {
+        let decode = jwt.verify(token,'kapilcalled');
+        req.user = decode.user;
+        next();
+    } catch (err) {
+        console.error("Token verification failed");
+        res.status(401).json({msg: 'Invalid token'})
+    }
+   
+    });
  
 const PORT =5000;
 

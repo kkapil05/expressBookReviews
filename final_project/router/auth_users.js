@@ -70,7 +70,45 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     return res.status(403).json({ message: "Invalid or expired token" });
   }
 });
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  let isbn = req.params.isbn;
+  let reviewData = req.query.review;
+  let token = req.header('Authorization')?.split(' ')[1]; // Removes 'Bearer '
 
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
+  try {
+    let decoded = jwt.verify(token, "kapilcalled"); // Decode JWT
+    let username = decoded.username;
+
+    if (!books[isbn]) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    let book = books[isbn];
+
+    // // If no reviews exist, initialize an empty object
+    // if (!book.reviews) {
+    //   return res.status(404).json({ message: "No review to delete." });
+    // }
+
+    // If the user already posted a review, delete it
+    if (book.reviews[username]) {
+       delete book.reviews[username]; 
+      return res.status(200).json({ message: "Review deleted successfully", reviews: book.reviews });
+      }
+
+    // // Otherwise, add a new review
+    // book.reviews[username] = reviewData;
+    return res.status(404).json({ message: "No review to delete"});
+
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid or expired token" });
+  }
+ 
+});
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;

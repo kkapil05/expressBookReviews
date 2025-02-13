@@ -12,7 +12,8 @@ app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUni
 
 app.use("/customer/auth/*", function auth(req,res,next){
 //Write the authenication mechanism here
-    let token = req.header('Authorization');
+let token = req.header('Authorization')?.split(' ')[1]; // Removes 'Bearer '
+
     if(!token)
     {
         return res.status(401).json({msg: 'Access denied no token provided'});

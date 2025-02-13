@@ -33,10 +33,44 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
+  let isbn = req.params.isbn;
+  let reviewData = req.query.review;
+  let token = req.header('Authorization')?.split(' ')[1]; // Removes 'Bearer '
 
-  return res.status(300).json({message: "Yet to be implemented"});
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
+  try {
+    let decoded = jwt.verify(token, "kapilcalled"); // Decode JWT
+    let username = decoded.username;
+
+    if (!books[isbn]) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    let book = books[isbn];
+
+    // If no reviews exist, initialize an empty object
+    if (!book.reviews) {
+      book.reviews = {};
+    }
+
+    // If the user already posted a review, update it
+    if (book.reviews[username]) {
+      book.reviews[username] = reviewData;
+      return res.status(200).json({ message: "Review updated successfully", reviews: book.reviews });
+    }
+
+    // Otherwise, add a new review
+    book.reviews[username] = reviewData;
+    return res.status(201).json({ message: "Review added successfully", reviews: book.reviews });
+
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid or expired token" });
+  }
 });
+
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;

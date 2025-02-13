@@ -58,7 +58,7 @@ public_users.get('/isbn/:isbn',function (req, res) {
  public_users.get('/await/isbn/:isbn', async function (req, res) {
     let isbn = req.params.isbn;
     try {
-        const response = await axios.get(`https://kapil65kumar-5000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/${isbn}`); // Replace with actual API URL
+        const response = await axios.get(`https://kapil65kumar-5000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/isbn/${isbn}`); // Replace with actual API URL
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ message: "Error fetching book data", error: error.message });
